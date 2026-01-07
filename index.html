@@ -367,40 +367,31 @@ function generatePNG() {
     });
 }
 
-    function uploadDirectToDiscord() {
+    function uploadKeDiscord() {
     const page = document.querySelector(".page");
 
     html2canvas(page, {
         scale: 2,
-        backgroundColor: "#ffffff",
-        useCORS: true
+        backgroundColor: "#ffffff"
     }).then(canvas => {
-        // ubah canvas menjadi blob PNG
         canvas.toBlob(blob => {
             const formData = new FormData();
             formData.append("file", blob, "surat-kontrak.png");
 
-            // ⚠ Ganti dengan Webhook Discord Anda
-            const webhookURL = "https://discord.com/api/webhooks/1458594748003520524/e78Ix3mW_a_ANQFx-SV14p3hE38aSpnIeWGYwfTKoB9jThUfEp400h3W2zVChiTBobxM";
-
-            fetch(webhookURL, {
+            fetch("http://localhost:3000/upload", {
                 method: "POST",
                 body: formData
             })
-            .then(response => {
-                if(response.ok) alert("Berhasil upload surat ke Discord!");
-                else alert("Gagal upload surat ke Discord.");
-            })
+            .then(res => res.text())
+            .then(alert)
             .catch(err => {
                 console.error(err);
-                alert("Terjadi error saat upload ke Discord.");
+                alert("Gagal upload");
             });
         }, "image/png");
-    }).catch(err => {
-        console.error(err);
-        alert("Gagal membuat PNG dari surat.");
     });
 }
+
 
 
 
@@ -409,4 +400,5 @@ function generatePNG() {
 
 </body>
 </html>
+
 
