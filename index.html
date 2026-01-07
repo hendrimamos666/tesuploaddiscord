@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>Generate Surat PNG</title>
+<link href="https://fonts.googleapis.com/css2?family=Alex+Brush&display=swap" rel="stylesheet">
+
+<script src="https://unpkg.com/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+
+<style>
+body {
+    font-family: "Times New Roman", serif;
+    background: #02203d;
+    padding: 30px;
+}
+
+/* FORM CONTAINER */
+.container {
+    max-width: 820px;
+    background: #ffffff;
+    padding: 40px;
+    margin: auto;
+    border-radius: 10px;
+    box-shadow: 0 10px 30px rgba(10, 37, 64, 0.15);
+}
+
+/* INPUT */
+input {
+    width: 100%;
+    padding: 12px;
+    margin-top: 12px;
+    border: 1px solid #cfd8e3;
+    border-radius: 6px;
+    font-size: 14px;
+}
+
+input:focus {
+    outline: none;
+    border-color: #0a2540;
+}
+
+/* BUTTON */
+button {
+    width: 100%;
+    padding: 14px;
+    margin-top: 12px;
+    border: none;
+    border-radius: 6px;
+    background: #0a2540;
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #143a5c;
+}
+
+/* HALAMAN SURAT */
+.watermark {
+    position: absolute;        /* ⬅️ WAJIB */
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    opacity: 0.08;
+    z-index: 0;
+    pointer-events: none;
+}
+
+.page {
+    width: 210mm;
+    min-height: 297mm;
+    padding: 25mm;
+    margin: auto;
+    background: white;
+    position: relative;
+    overflow: hidden;
+    box-sizing: border-box;
+}
+
+
+
+.watermark img {
+    width: 350px;            /* ukuran watermark */
+    height: auto;
+}
+
+
+.page > *:not(.watermark) {
+    position: relative;
+    z-index: 1;
+}
+
+
+/* JUDUL */
+h2 {
+    text-align: center;
+    font-size: 16px;
+    text-transform: uppercase;
+    color: #0a2540;
+}
+
+/* ISI */
+.isi {
+    font-size: 14px;
+    line-height: 1.8;
+    text-align: justify;
+    color: #000;
+}
+
+/* KOP SURAT */
+.kop-surat {
+    display: grid;
+    grid-template-columns: 90px 1fr 90px;
+    align-items: center;
+    border-bottom: 3px solid #0a2540;
+    padding-bottom: 15px;
+    margin-bottom: 25px;
+}
+
+.kop-logo {
+    text-align: center;
+}
+
+.kop-logo img {
+    width: 75px;
+}
+
+.kop-text {
+    text-align: center;
+}
+
+.kop-text h1 {
+    font-size: 18px;
+    margin: 0;
+    letter-spacing: 1px;
+    color: #0a2540;
+}
+
+.kop-text h2 {
+    font-size: 14px;
+    margin: 4px 0;
+    font-weight: normal;
+    color: #143a5c;
+}
+
+.kop-text p {
+    font-size: 12px;
+    margin: 2px 0;
+    color: #333;
+}
+
+
+
+
+/* TTD */
+.ttd-wrap {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 90px;
+}
+
+.ttd-box {
+    width: 45%;
+    text-align: center;
+}
+
+.jabatan {
+    font-weight: bold;
+    margin-bottom: 35px;
+}
+
+.ttd-manager {
+    width: 130px;        /* ⬅️ BESAR TTD */
+    max-height: 60px;    /* ⬅️ SESUAIKAN TINGGI */
+    object-fit: contain;
+    display: block;
+    margin: 0 auto 10px;
+}
+
+
+.ttd-otomatis {
+    font-family: 'Alex Brush', cursive;
+    font-size: 42px;        /* besar & natural */
+    height: 50px;
+    line-height: 50px;
+    margin: 0 auto 10px;
+    color: #0a2540;
+    letter-spacing: 1px;
+}
+
+
+.nama-ttd {
+    font-weight: bold;
+}
+
+/* Banner header full lebar */
+.banner-header {
+    position: sticky;        /* tetap di atas saat scroll */
+    top: 0;
+    width: 100%;
+    display: flex;
+    justify-content: center; /* agar gambar di tengah */
+    z-index: 1000;
+    padding: 10px 0;
+}
+
+.banner-header img {
+    width: 60%;              /* mengecilkan banner */
+    max-width: 1000px;       /* batas maksimal supaya tidak terlalu besar */
+    height: auto;            /* proporsional sesuai rasio 3301x882 */
+    object-fit: contain;     /* mempertahankan proporsi */
+    display: block;
+}
+
+
+
+</style>
+
+</head>
+
+<body>
+
+<body>
+<!-- Banner Header -->
+  <div class="banner-header">
+      <img src="banner.png" alt="Banner Header">
+  </div>  
+
+<div class="container">
+    <input type="date" id="tanggal">
+    <input type="text" id="nama" placeholder="Nama">
+    <input type="text" id="hp" placeholder="Nomor HP">
+    <input type="number" id="nominal" placeholder="Nominal">
+
+    <button onclick="buatSurat()">Tampilkan Surat</button>
+    <button onclick="generatePNG()">Generate PNG</button>
+
+    <div id="surat">
+        <div class="page">
+
+            <!-- WATERMARK -->
+            <div class="watermark">
+                <img src="logo-imi.png">
+            </div>
+
+            <!-- KOP -->
+            <div class="kop-surat">
+                <div class="kop-logo">
+                    <img src="logo-imi.png">
+                </div>
+
+    <div class="kop-text">
+        <h1>IMI ENTERTAINMENT</h1>
+        <h2>Artist Management & Creative Industry</h2>
+        <p>
+         Kantor Media, South Boulevard Del Pierro,Los Santos (7178), Indopride
+        </p>
+    </div>
+
+    <div class="kop-logo">
+        <img src="logo-imi.png" alt="Logo IMI">
+    </div>
+</div>
+<div class="watermark">
+    <img src="logo-imi.png" alt="Watermark IMI">
+</div>
+
+    <h2>SURAT PERNYATAAN PENANDATANGANAN KONTRAK TALENT</h2>
+
+    <p><b>TANGGAL PERNYATAAN: <span id="s_tanggal"></span></b></p>
+
+    <div class="isi">
+        <p>Yang bertanda tangan di bawah ini:</p>
+
+        <p>
+            Nama Talent : <b><span id="s_nama"></span></b><br>
+            No. HP : <b><span id="s_hp"></span></b><br>
+            Nilai Kontrak : <b>$IDP <span id="s_nominal"></span></b>
+            
+
+        </p>
+
+        <p>
+    Selanjutnya disebut sebagai <b>“TALENT”</b>, dengan ini menyatakan bahwa saya telah membaca,
+    memahami, dan sepenuhnya menyetujui seluruh ketentuan yang tercantum dalam
+    Perjanjian Kontrak Talent yang dibuat antara saya dan
+    <b>IMI ENTERTAINMENT</b> (selanjutnya disebut sebagai <b>“AGENSI”</b>),
+    dengan durasi kontrak selama <b>6 (enam) bulan</b>, terhitung sejak tanggal efektif
+    perjanjian, dengan nilai kontrak tersebut, serta ketentuan lainnya sebagaimana tercantum pada halaman
+    <b>2 (dua)</b> perjanjian tersebut.
+</p>
+
+        <p>
+            Saya juga menyatakan bahwa saya menandatangani perjanjian ini tanpa ada paksaan dari pihak manapun, dan saya bersedia untuk menjalankan semua kewajiban serta menerima manfaat yang diatur dalam perjanjian ini.
+        </p>
+    </div>
+
+<div class="ttd-wrap">
+    <div class="ttd-box">
+        <div class="jabatan">MANAGER IMI ENTERTAINMENT</div>
+        <img src="ttd-manager.png" class="ttd-manager">
+        <div class="nama-ttd">HEEN SOMI</div>
+    </div>
+
+    <div class="ttd-box">
+        <div class="jabatan">TALENT</div>
+        <div class="ttd-otomatis" id="ttdTalent"></div>
+        <div class="nama-ttd"><span id="s_nama2"></span></div>
+         </div>
+
+        </div> <!-- .page -->
+    </div> <!-- #surat -->
+
+</div> <!-- .container -->
+
+</body>
+
+<script>
+function buatSurat() {
+    const tanggal = document.getElementById("tanggal").value;
+    const namaLengkap = document.getElementById("nama").value;
+    const hp = document.getElementById("hp").value;
+    const nominal = document.getElementById("nominal").value;
+
+    const namaDepan = namaLengkap.trim().split(" ")[0];
+
+    document.getElementById("s_tanggal").innerText = tanggal;
+    document.getElementById("s_nama").innerText = namaLengkap;
+    document.getElementById("s_nama2").innerText = namaLengkap;
+    document.getElementById("s_hp").innerText = hp;
+
+    document.getElementById("ttdTalent").innerText = namaDepan;
+
+    document.getElementById("s_nominal").innerText =
+        Number(nominal).toLocaleString("id-ID");
+}
+
+
+
+function generatePNG() {
+    const page = document.querySelector(".page");
+
+    html2canvas(page, {
+        scale: 300 / 96,      // konversi ke 300 DPI
+        width: 794,           // A4 px @96dpi
+        height: 1123,
+        backgroundColor: "#ffffff",
+        useCORS: true
+    }).then(canvas => {
+
+        // Resize canvas ke A4 PRINT SIZE
+        const finalCanvas = document.createElement("canvas");
+        finalCanvas.width = 2480;
+        finalCanvas.height = 3508;
+
+        const ctx = finalCanvas.getContext("2d");
+        ctx.drawImage(canvas, 0, 0, 2480, 3508);
+
+        const link = document.createElement("a");
+        link.download = "surat-kontrak-A4.png";
+        link.href = finalCanvas.toDataURL("image/png");
+        link.click();
+    });
+}
+
+
+
+</script>
+
+</body>
+</html>
