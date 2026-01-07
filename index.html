@@ -197,7 +197,7 @@ h2 {
 
 /* Banner header full lebar */
 .banner-header {
-    position: sticky;        /* tetap di atas saat scroll */
+    position: static;        /* tetap di atas saat scroll */
     top: 0;
     width: 100%;
     display: flex;
@@ -236,6 +236,8 @@ h2 {
 
     <button onclick="buatSurat()">Tampilkan Surat</button>
     <button onclick="generatePNG()">Generate PNG</button>
+    <button onclick="uploadToDiscord()">Upload ke Discord</button>
+
 
     <div id="surat">
         <div class="page">
@@ -365,9 +367,46 @@ function generatePNG() {
     });
 }
 
+    function uploadDirectToDiscord() {
+    const page = document.querySelector(".page");
+
+    html2canvas(page, {
+        scale: 2,
+        backgroundColor: "#ffffff",
+        useCORS: true
+    }).then(canvas => {
+        // ubah canvas menjadi blob PNG
+        canvas.toBlob(blob => {
+            const formData = new FormData();
+            formData.append("file", blob, "surat-kontrak.png");
+
+            // ⚠ Ganti dengan Webhook Discord Anda
+            const webhookURL = "https://discord.com/api/webhooks/1458594748003520524/e78Ix3mW_a_ANQFx-SV14p3hE38aSpnIeWGYwfTKoB9jThUfEp400h3W2zVChiTBobxM";
+
+            fetch(webhookURL, {
+                method: "POST",
+                body: formData
+            })
+            .then(response => {
+                if(response.ok) alert("Berhasil upload surat ke Discord!");
+                else alert("Gagal upload surat ke Discord.");
+            })
+            .catch(err => {
+                console.error(err);
+                alert("Terjadi error saat upload ke Discord.");
+            });
+        }, "image/png");
+    }).catch(err => {
+        console.error(err);
+        alert("Gagal membuat PNG dari surat.");
+    });
+}
+
+
 
 
 </script>
 
 </body>
 </html>
+
